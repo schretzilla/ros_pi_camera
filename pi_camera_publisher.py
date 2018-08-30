@@ -18,20 +18,16 @@ def talker():
     VideoRaw = rospy.Publisher('VideoRaw', Image, queue_size=10)
 
     camera = PiCamera()
-    camera.resolution = (640, 480)
+    camera.resolution = (640, 360)
     camera.framerate = 32
-    rawCapture = PiRGBArray(camera, size=(640, 480))
+    rawCapture = PiRGBArray(camera, size=(640, 360))
 
     time.sleep(0.1)
 
     rate = rospy.Rate(10) # 10hz sleep
 
-    #while not rospy.is_shutdown():
     for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
-    #meta, frame = cam.read()
         image = frame.array
-
-        cv2.imshow('image', image)
 
         #publish the Canny Edge Image and the original Image
         try:
@@ -41,16 +37,13 @@ def talker():
             print(e)
 
         rawCapture.truncate(0)
-     #   rate.sleep()
-     
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-        
-    cv2.destroyWindow('image')
+        rate.sleep()
+
+        if(rospy.is_shutdown()):
+           break
 
 if __name__ == '__main__':
     try:
         talker()
     except rospy.ROSInterruptException:
         pass
-
